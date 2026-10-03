@@ -1,0 +1,141 @@
+[
+    {
+        "id": "bow",
+        "question": "What is the bag-of-words model?",
+        "expected_pages": [
+            4
+        ]
+    },
+    {
+        "id": "idf",
+        "question": "How is inverse document frequency defined?",
+        "expected_pages": [
+            6
+        ]
+    },
+    {
+        "id": "bm25",
+        "question": "What do the k and b parameters do in BM25?",
+        "expected_pages": [
+            8,
+            9
+        ]
+    },
+    {
+        "id": "inverted",
+        "question": "What is an inverted index and what are postings?",
+        "expected_pages": [
+            9
+        ]
+    },
+    {
+        "id": "prec_recall",
+        "question": "How are precision and recall defined for retrieval?",
+        "expected_pages": [
+            10
+        ]
+    },
+    {
+        "id": "map",
+        "question": "What is mean average precision?",
+        "expected_pages": [
+            12
+        ]
+    },
+    {
+        "id": "vocab",
+        "question": "What is the vocabulary mismatch problem?",
+        "expected_pages": [
+            13
+        ]
+    },
+    {
+        "id": "biencoder",
+        "question": "Why is a bi-encoder cheaper than a full BERT query-document encoder?",
+        "expected_pages": [
+            14
+        ]
+    },
+    {
+        "id": "colbert",
+        "question": "What is ColBERT and how does it score documents?",
+        "expected_pages": [
+            15
+        ]
+    },
+    {
+        "id": "rag_steps",
+        "question": "What are the steps of the basic RAG algorithm?",
+        "expected_pages": [
+            17
+        ]
+    },
+    {
+        "id": "halluc_legal",
+        "question": "How often do LLMs hallucinate on legal questions?",
+        "expected_pages": [
+            2
+        ]
+    },
+    {
+        "id": "exact_f1",
+        "question": "How is exact match different from token F1 for QA evaluation?",
+        "expected_pages": [
+            20
+        ]
+    },
+    {
+        "id": "para_keywords",
+        "question": "Why does keyword search fail when the query uses different words than the document?",
+        "expected_pages": [
+            13
+        ]
+    },
+    {
+        "id": "para_cost",
+        "question": "Why is it too slow to run every document through BERT together with each new query?",
+        "expected_pages": [
+            14
+        ]
+    },
+    {
+        "id": "oos_capital",
+        "question": "What is the capital of Australia?",
+        "expected_pages": []
+    },
+    {
+        "id": "oos_bread",
+        "question": "How do I bake sourdough bread?",
+        "expected_pages": []
+    },
+    {
+        "id": "oos_worldcup",
+        "question": "Who won the 2022 FIFA World Cup?",
+        "expected_pages": []
+    },
+    {
+        "id": "oos_attention",
+        "question": "How does the attention mechanism work in transformers?",
+        "expected_pages": []
+    },
+    {
+        "id": "oos_elastic",
+        "question": "What is Elasticsearch's default scoring algorithm?",
+        "expected_pages": []
+    },
+    {
+        "id": "oos_word2vec",
+        "question": "How is word2vec trained?",
+        "expected_pages": []
+    },
+    {
+        "id": "oos_vague",
+        "question": "test",
+        "expected_pages": []
+    },
+    {
+        "id": "oos_hello",
+        "question": "hello",
+        "expected_pages": []
+    }
+]
