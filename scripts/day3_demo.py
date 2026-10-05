@@ -1,27 +1,28 @@
-"""Day 3: embed chunks and upsert into Chroma. Safe to run repeatedly.
+"""Ingest a PDF via the same code path as the Streamlit UI. Safe to re-run.
 
-Usage: python day3_demo.py path\\to\\file.pdf ["optional test question"]
+Usage: python -m scripts.day3_demo path\\to\\file.pdf ["optional test question"]
 """
 import sys
-import time
+from pathlib import Path
 
-from app.chunker import chunk_pages
-from app.embedder import embed_query, embed_texts
-from app.loader import load_pdf
-from app.store import get_collection, query, upsert_chunks, TEXT_FIELD
+from app.embedder import embed_query
+from app.ingest import IngestLimits, ingest_pdf
+from app.store import get_collection, list_sources, query
+
+NO_LIMITS = IngestLimits(max_bytes=10**10, max_pages=10**6)  # the CLI is trusted input
 
 
 def main(pdf_path: str, question: str | None) -> None:
-    chunks = chunk_pages(load_pdf(pdf_path))
-    print(f"{len(chunks)} chunks")
-
-    t = time.perf_counter()
-    vectors = embed_texts([getattr(c, TEXT_FIELD) for c in chunks], show_progress=True)
-    print(f"embedded in {time.perf_counter() - t:.1f}s (dim={len(vectors[0])})")
-
+    path = Path(pdf_path)
     col = get_collection()
-    upsert_chunks(col, chunks, vectors)
-    print(f"collection count: {col.count()}  (should equal {len(chunks)} on every re-run)")
+    result = ingest_pdf(
+        path.read_bytes(), path.name, col, limits=NO_LIMITS,
+        on_progress=lambda frac, msg: print(f"[{frac:4.0%}] {msg}"),
+    )
+    print(result.message)
+    if not result.ok:
+        sys.exit(1)
+    print(f"collection count: {col.count()}  sources: {list_sources(col)}")
 
     if question:
         for hit in query(col, embed_query(question)):

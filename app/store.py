@@ -1,6 +1,7 @@
 """Persistent Chroma collection. Upserts are idempotent thanks to deterministic chunk IDs."""
 from __future__ import annotations
 
+from collections import Counter
 from dataclasses import asdict
 from pathlib import Path
 
@@ -54,8 +55,34 @@ def upsert_chunks(col, chunks: list, embeddings: list[list[float]], batch: int =
     return len(chunks)
 
 
-def query(col, query_embedding: list[float], k: int = 4) -> list[dict]:
-    res = col.query(query_embeddings=[query_embedding], n_results=k)
+def delete_source(col, source: str, batch: int = 500) -> int:
+    """Delete every chunk whose metadata `source` equals `source`. Returns the count."""
+    ids = col.get(where={"source": source}, include=[])["ids"]
+    for i in range(0, len(ids), batch):
+        col.delete(ids=ids[i : i + batch])
+    return len(ids)
+
+
+def list_sources(col) -> dict[str, int]:
+    """Map each indexed source name to its chunk count, sorted by name."""
+    metas = col.get(include=["metadatas"])["metadatas"] or []
+    counts = Counter(str(m.get("source", "unknown")) for m in metas if m)
+    return dict(sorted(counts.items()))
+
+
+def query(
+    col, query_embedding: list[float], k: int = 4, source: str | None = None
+) -> list[dict]:
+    """Nearest chunks, best first. `source` restricts the search to one document."""
+    if source is None:
+        available, extra = col.count(), {}
+    else:
+        available = len(col.get(where={"source": source}, include=[])["ids"])
+        extra = {"where": {"source": source}}
+    n = min(k, available)  # some Chroma versions raise if n_results > matching chunks
+    if n == 0:
+        return []
+    res = col.query(query_embeddings=[query_embedding], n_results=n, **extra)
     return [
         {"id": i, "text": d, "meta": m, "distance": dist}
         for i, d, m, dist in zip(

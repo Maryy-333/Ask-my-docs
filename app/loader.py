@@ -15,22 +15,32 @@ def _clean(text: str) -> str:
     return text.strip()
 
 
+def _pages_from_doc(doc: "pymupdf.Document", name: str) -> list[Page]:
+    """Extract cleaned text pages from an open document; skip empty pages."""
+    if doc.needs_pass and not doc.authenticate(""):
+        raise ValueError(f"{name} is password-protected")
+    pages: list[Page] = []
+    for i, page in enumerate(doc, start=1):
+        text = _clean(page.get_text("text"))
+        if text:
+            pages.append(Page(source=name, page=i, text=text))
+    if not pages:
+        raise ValueError(
+            f"No extractable text in {name}. It may be a scanned PDF (needs OCR)."
+        )
+    return pages
+
+
 def load_pdf(path: str | Path) -> list[Page]:
+    """Load a PDF from disk. Source name is the file name."""
     path = Path(path)
     if not path.is_file():
         raise FileNotFoundError(f"PDF not found: {path}")
-
-    pages: list[Page] = []
     with pymupdf.open(path) as doc:
-        if doc.needs_pass and not doc.authenticate(""):
-            raise ValueError(f"{path.name} is password-protected")
-        for i, page in enumerate(doc, start=1):
-            text = _clean(page.get_text("text"))
-            if text:
-                pages.append(Page(source=path.name, page=i, text=text))
+        return _pages_from_doc(doc, path.name)
 
-    if not pages:
-        raise ValueError(
-            f"No extractable text in {path.name}. It may be a scanned PDF (needs OCR)."
-        )
-    return pages
+
+def load_pdf_bytes(data: bytes, name: str) -> list[Page]:
+    """Load a PDF from memory (e.g. a Streamlit upload). `name` becomes the source."""
+    with pymupdf.open(stream=data, filetype="pdf") as doc:
+        return _pages_from_doc(doc, name)

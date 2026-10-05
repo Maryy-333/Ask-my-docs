@@ -24,17 +24,20 @@ def retrieve(
     k: int = 4,
     max_distance: float | None = None,
     collection: Any = None,
+    source: str | None = None,
 ) -> list[RetrievedChunk]:
     """Return up to k chunks nearest to the question, best first.
 
     If max_distance is set, chunks with distance > max_distance are dropped.
+    If `source` is set, only that document is searched (None = all documents).
     Pass `collection` to reuse an open Chroma collection (e.g. in Streamlit).
     """
     if not question.strip():
         return []
 
     col = collection if collection is not None else get_collection()
-    hits = query_collection(col, embed_query(question), k=k)
+    extra = {"source": source} if source else {}  # unfiltered calls keep the old shape
+    hits = query_collection(col, embed_query(question), k=k, **extra)
 
     results: list[RetrievedChunk] = []
     for hit in hits:

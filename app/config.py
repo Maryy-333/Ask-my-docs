@@ -6,3 +6,8 @@ DEFAULT_K = 6
 MAX_DISTANCE = 0.70
 
 MIN_QUERY_CHARS = 8
+
+# Upload limits. MiniLM runs on CPU: ~4.8 chunks/page in sample.pdf, so 100 pages ~ 480 chunks.
+# These protect local CPU time and memory, not Gemini quota (embeddings are local).
+MAX_UPLOAD_MB = 10
+MAX_PAGES = 100

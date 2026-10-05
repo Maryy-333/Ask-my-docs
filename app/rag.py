@@ -31,9 +31,11 @@ def answer(
     question: str,
     k: int = DEFAULT_K,
     max_distance: float | None = MAX_DISTANCE,
+    source: str | None = None,
 ) -> RagResult:
     """Answer from the indexed documents. Pass max_distance=None to disable the cutoff.
 
+    `source` limits retrieval to one document (None = all documents).
     Never raises on LLM failure.
     """
     question = question.strip()
@@ -43,7 +45,10 @@ def answer(
         # Vague inputs ("hello", "test") would burn quota on a guaranteed "I don't know".
         return RagResult(TOO_SHORT_MESSAGE, [], ok=False)
 
-    chunks = retrieve(question, k=k, max_distance=max_distance)
+    # Only pass `source` when set, so unfiltered calls keep the exact old call shape
+    # (existing tests that fake `retrieve` with a fixed signature keep passing).
+    extra = {"source": source} if source else {}
+    chunks = retrieve(question, k=k, max_distance=max_distance, **extra)
     if not chunks:
         # Nothing close enough: skip the LLM call (saves free-tier quota).
         return RagResult(NO_ANSWER, [])
